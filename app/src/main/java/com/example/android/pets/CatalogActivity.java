@@ -18,7 +18,7 @@ package com.example.android.pets;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +26,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
@@ -36,9 +35,6 @@ import com.example.android.pets.data.PetDbHelper;
  */
 public class CatalogActivity extends AppCompatActivity {
 
-    // To access our database, we instantiate our subclass of SQLiteOpenHelper
-    // and pass the context, which is the current activity.
-    PetDbHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +50,6 @@ public class CatalogActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        mDbHelper = new PetDbHelper(this);
 
     }
 
@@ -97,8 +91,8 @@ public class CatalogActivity extends AppCompatActivity {
      */
     private void displayDatabaseInfo() {
 
-        // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+//        // Create and/or open a database to read from it
+//        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         // Raw SQL query "SELECT * FROM pets" REPLACED WITH THE BELOW
         // to get a Cursor that contains all rows from the pets table.
@@ -109,14 +103,24 @@ public class CatalogActivity extends AppCompatActivity {
                 PetEntry.COLUMN_BREED,
                 PetEntry.COLUMN_WEIGHT
         };
-        Cursor cursor = db.query(
-                PetEntry.TABLE_NAME, projection,
-                null,
-                null,
+
+//        REMOVED THE BOTTOM SINCE IT DIRECTLY INTERACTS WITH THE DB. INSTEAD, WE CALL getContentResolver() WHICH GOES THROUGH THE PetProvider
+//        Cursor cursor = db.query(
+//                PetEntry.TABLE_NAME, projection,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null
+//        );
+        Cursor cursor = getContentResolver().query(
+                PetEntry.CONTENT_URI,
+                projection,
                 null,
                 null,
                 null
         );
+
         try {
             TextView displayView = (TextView) findViewById(R.id.text_view_pet);
             // In the while loop below, iterate through the rows of the cursor and display
@@ -159,8 +163,6 @@ public class CatalogActivity extends AppCompatActivity {
     }
 
     private void insertPet() {
-    // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
     // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
@@ -168,15 +170,10 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_BREED, "dummy_breed");
         values.put(PetEntry.COLUMN_WEIGHT, 6);
 
-    // Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
-
-        if (newRowId == -1) {
-            // If the row ID is -1, then there was an error with insertion.
-            Toast.makeText(this, "Error with saving pet", Toast.LENGTH_SHORT).show();
-        } else {
-            // Otherwise, the insertion was successful and we can display a toast with the row ID.
-            Toast.makeText(this, "New dummy record's ID: " + newRowId, Toast.LENGTH_SHORT).show();
-        }
+        // Insert a new row for Toto into the provider using the ContentResolver.
+        // Use the {@link PetEntry#CONTENT_URI} to indicate that we want to insert
+        // into the pets database table.
+        // Receive the new content URI that will allow us to access Toto's data in the future.
+        Uri newUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
     }
 }
