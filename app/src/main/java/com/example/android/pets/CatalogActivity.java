@@ -16,6 +16,7 @@
 package com.example.android.pets;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -74,6 +76,22 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         //Start the loader
         getLoaderManager().initLoader(URL_LOADER, null, this);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+
+//              gets URI for this pet, eg. "content://...pets/pets/2"
+                Uri currentUri = ContentUris.withAppendedId(PetEntry.CONTENT_URI, id);
+
+//                set URI on the data field of the intent
+                intent.setData(currentUri);
+//                ^^ HERE WE SET DATA. IN EDITOR_ACTIVITY, WE GET THIS DATA "Uri currentUri = intent.getData();"
+
+                startActivity(intent);
+            }
+        });
+
     }
 
 //    onStart() with displayDatabaseInfo() method removed since adapter will automatically get updated with new cursor
@@ -107,6 +125,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
 //    displayDatabaseInfo() REMOVED SINCE ITS MOVED INTO THE BG THREAD!
 //onStart is triggered whenever the application is rotated, or if you navigate away for a second and then back. If you rotate the app or navigate away and back from the application - do you really need to get the data from the database again? Has anything in the database changed? The answer is no, nothing in the database has changed, so you should not need to keep reloading the data.
+
 
     private void insertPet() {
 
