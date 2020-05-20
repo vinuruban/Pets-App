@@ -145,6 +145,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         String[] projection = {
+//                THREE ARGUMENTS NEEDED SINCE WE WILL ONLY DISPLAY NAME AND BREED
                 PetEntry.COLUMN_ID,
                 PetEntry.COLUMN_NAME,
                 PetEntry.COLUMN_BREED
@@ -164,12 +165,13 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         // Update adapter with this new cursor containing updated pet data
-        petCursorAdapter.swapCursor(cursor);
+        petCursorAdapter.swapCursor(cursor);//CURSOR IS PASSED INTO THE ADAPTER SINCE THE ADAPTER WILL TEAR IT DOWN AND ACTUALLY DISPLAY THE DATA
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 //        Callback called when the data needs to be deleted
+//        onLoaderReset is called when we leave the page, so its better to clean the cursor here
         petCursorAdapter.swapCursor(null);
     }
 
