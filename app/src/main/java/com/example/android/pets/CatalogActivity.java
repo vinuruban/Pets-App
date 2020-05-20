@@ -15,8 +15,11 @@
  */
 package com.example.android.pets;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,8 +37,13 @@ import com.example.android.pets.data.PetDbHelper;
 /**
  * Displays list of pets that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity {
+public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    // Identifies a particular Loader being used in this component
+    private static final int URL_LOADER = 0;
+
+    //adapter for our list view
+    PetCursorAdapter petCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +60,24 @@ public class CatalogActivity extends AppCompatActivity {
             }
         });
 
+        //ListView attached
+        ListView listView = (ListView) findViewById(R.id.pet_list_view);
+
+        //TODO: add empty view
+
+        //the second argument for Miwok app was "words" array. In our case, its the CURSOR!
+        petCursorAdapter = new PetCursorAdapter(this, null);
+
+        //ListView + CursorAdapter
+        listView.setAdapter(petCursorAdapter);
+
+        //Start the loader
+        getLoaderManager().initLoader(URL_LOADER, null, this);
+
     }
 
-    @Override
-    protected void onStart() { //REMEMBER: WHEN ACTIVITY RESTARTS, onCreate() ISN'T CALLED AGAIN, BUT onStart() IS CALLED
-        // AFTER NEW PET IS ADDED IN THE EDITOR_ACTIVITY, onStart() IS TRIGGERED AND EXECUTES displayDatabaseInfo()
-        super.onStart();
-        displayDatabaseInfo();
-    }
+//    onStart() with displayDatabaseInfo() method removed since adapter will automatically get updated with new cursor
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {//THIS CREATES THE MENU BUTTON IN THE APP BAR
@@ -76,7 +94,7 @@ public class CatalogActivity extends AppCompatActivity {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
                 insertPet();
-                displayDatabaseInfo();
+                // displayDatabaseInfo() method that was previously called here has been removed since adapter will automatically get updated with new cursor
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
@@ -86,51 +104,9 @@ public class CatalogActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Temporary helper method to display information in the onscreen TextView about the state of
-     * the pets database.
-     */
-    private void displayDatabaseInfo() {
 
-//        // Create and/or open a database to read from it
-//        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-        // Raw SQL query "SELECT * FROM pets" REPLACED WITH THE BELOW
-        // to get a Cursor that contains all rows from the pets table.
-        String[] projection = {
-                PetEntry.COLUMN_ID,
-                PetEntry.COLUMN_NAME,
-                PetEntry.COLUMN_GENDER,
-                PetEntry.COLUMN_BREED,
-                PetEntry.COLUMN_WEIGHT
-        };
-
-//        REMOVED THE BOTTOM SINCE IT DIRECTLY INTERACTS WITH THE DB. INSTEAD, WE CALL getContentResolver() WHICH GOES THROUGH THE PetProvider
-//        Cursor cursor = db.query(
-//                PetEntry.TABLE_NAME, projection,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null
-//        );
-        Cursor cursor = getContentResolver().query(
-                PetEntry.CONTENT_URI,
-                projection,
-                null,
-                null,
-                null
-        );
-
-        //ListView attached
-        ListView listView = (ListView) findViewById(R.id.pet_list_view);
-
-        //the second argument for Miwok app was "words" array. In our case, its the CURSOR!
-        PetCursorAdapter petCursorAdapter = new PetCursorAdapter(this, cursor);
-
-        //ListView + CursorAdapter
-        listView.setAdapter(petCursorAdapter);
-    }
+//    displayDatabaseInfo() REMOVED SINCE ITS MOVED INTO THE BG THREAD!
+//onStart is triggered whenever the application is rotated, or if you navigate away for a second and then back. If you rotate the app or navigate away and back from the application - do you really need to get the data from the database again? Has anything in the database changed? The answer is no, nothing in the database has changed, so you should not need to keep reloading the data.
 
     private void insertPet() {
 
@@ -146,4 +122,36 @@ public class CatalogActivity extends AppCompatActivity {
         // Receive the new content URI that will allow us to access Toto's data in the future.
         Uri newUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
     }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String[] projection = {
+                PetEntry.COLUMN_ID,
+                PetEntry.COLUMN_NAME,
+                PetEntry.COLUMN_BREED
+        };
+
+    // Returns a new CursorLoader
+        return new CursorLoader(
+                this,           // Parent activity context
+                PetEntry.CONTENT_URI,   // Table to query
+                projection,             // Projection to return
+                null,          // No selection clause
+                null,       // No selection arguments
+                null           // Default sort order
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        // Update adapter with this new cursor containing updated pet data
+        petCursorAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+//        Callback called when the data needs to be deleted
+        petCursorAdapter.swapCursor(null);
+    }
+
 }
