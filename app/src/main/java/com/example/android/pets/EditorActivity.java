@@ -174,12 +174,25 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private void insertOrUpdatePet() {
 
-        // Create a new map of values, where column names are the keys
+        String nameString = mNameEditText.getText().toString().trim();
+        String breedString = mBreedEditText.getText().toString().trim();
+        String weightString = mWeightEditText.getText().toString().trim();
+
+        // Checks if the NAME, BREED AND WEIGHT fields in the editor are blank
+        if (TextUtils.isEmpty(nameString) && TextUtils.isEmpty(breedString) &&
+                TextUtils.isEmpty(weightString) && TextUtils.isEmpty(weightString)) {
+            // Since no fields were modified, we can return early without creating a new pet.
+            // No need to create ContentValues and no need to do any ContentProvider operations.
+            Log.i("EditorActivity", "insertOrUpdatePet: ");
+            return;
+        }
+
+        // Data should be checked (above code) before adding them into "values"
         ContentValues values = new ContentValues();
-        values.put(PetEntry.COLUMN_NAME, mNameEditText.getText().toString().trim());
+        values.put(PetEntry.COLUMN_NAME, nameString);
         values.put(PetEntry.COLUMN_GENDER, mGender);
-        values.put(PetEntry.COLUMN_BREED, mBreedEditText.getText().toString().trim());
-        values.put(PetEntry.COLUMN_WEIGHT, Integer.parseInt(mWeightEditText.getText().toString().trim()));
+        values.put(PetEntry.COLUMN_BREED, breedString);
+        values.put(PetEntry.COLUMN_WEIGHT, Integer.parseInt(weightString));
 
 
 //          IF IM IN THE "ADD A PET" MODE OF EDITOR_ACTIVITY
