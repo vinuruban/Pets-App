@@ -91,7 +91,7 @@ public class PetProvider extends ContentProvider {
                 // For every "?" in the selection, we need to have an element in the selection
                 // arguments that will fill in the "?". Since we have 1 question mark in the
                 // selection, we have 1 String in the selection arguments' String array.
-                selection = PetEntry._ID + "=?";
+                selection = PetEntry.COLUMN_ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
 
                 // This will perform a query on the pets table where the _id equals 3 to return a
@@ -178,7 +178,7 @@ public class PetProvider extends ContentProvider {
                 // For the PET_ID code, extract out the ID from the URI,
                 // so we know which row to update. Selection will be "_id=?" and selection
                 // arguments will be a String array containing the actual ID.
-                selection = PetEntry._ID + "=?";
+                selection = PetEntry.COLUMN_ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updatePet(uri, contentValues, selection, selectionArgs);
             default:
@@ -205,11 +205,12 @@ public class PetProvider extends ContentProvider {
         // If the {@link PetEntry#COLUMN_PET_GENDER} key is present,
         // check that the weight value is not null.
         if (values.containsKey(PetEntry.COLUMN_BREED)) {
-            Integer breed = values.getAsInteger(PetEntry.COLUMN_BREED);
+            String breed = values.getAsString(PetEntry.COLUMN_BREED);
             if (breed.equals("")) {
                 throw new IllegalArgumentException("Pet requires a breed");
             }
         }
+        Log.i("PetProvider", "insertOrUpdatePet: " );
 
         // If the {@link PetEntry#COLUMN_PET_WEIGHT} key is present,
         // check that the weight value is valid.
@@ -260,7 +261,7 @@ public class PetProvider extends ContentProvider {
                 break;
             case PET_ID:
                 // Delete a single row given by the ID in the URI
-                selection = PetEntry._ID + "=?";
+                selection = PetEntry.COLUMN_ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 rowsDeleted = database.delete(PetEntry.TABLE_NAME, selection, selectionArgs);
                 break;
