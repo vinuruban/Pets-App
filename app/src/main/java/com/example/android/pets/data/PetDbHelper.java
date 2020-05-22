@@ -13,14 +13,14 @@ public class PetDbHelper extends SQLiteOpenHelper {
 
     private static final String INT__PRIMARY_AUTO = " INTEGER PRIMARY KEY AUTOINCREMENT, ";
     private static final String TEXT_NOT_NULL = " TEXT NOT NULL, ";
-    private static final String INT_NOT_NULL_DEFAULT = " INTEGER NOT NULL DEFAULT 2, ";
+    private static final String INT_NOT_NULL = " INTEGER NOT NULL, ";
     private static final String INT_NOT_NULL_END = " INTEGER NOT NULL";
 
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + PetEntry.TABLE_NAME + " (" +
             PetEntry.COLUMN_ID + INT__PRIMARY_AUTO +
             PetEntry.COLUMN_NAME + TEXT_NOT_NULL +
-            PetEntry.COLUMN_GENDER + INT_NOT_NULL_DEFAULT +
+            PetEntry.COLUMN_GENDER + INT_NOT_NULL +
             PetEntry.COLUMN_BREED + TEXT_NOT_NULL +
             PetEntry.COLUMN_WEIGHT + INT_NOT_NULL_END + " )";
 

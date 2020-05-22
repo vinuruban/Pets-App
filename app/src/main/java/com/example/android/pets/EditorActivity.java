@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -36,6 +37,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract.PetEntry;
@@ -122,6 +124,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mGenderSpinner.setOnTouchListener(mTouchListener);
 
         setupSpinner();
+        TextView nameErrTextView = (TextView) findViewById(R.id.name_error_message);
     }
 
     /**
@@ -190,7 +193,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 insertOrUpdatePet();
-                finish(); //TO CLOSE EDITOR_ACTIVITY (AFTER HITTING SAVE) AND RETURN TO CATALOG_ACTIVITY
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
@@ -231,12 +233,29 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String breedString = mBreedEditText.getText().toString().trim();
         String weightString = mWeightEditText.getText().toString().trim();
 
-        // Checks if the NAME, BREED AND WEIGHT fields in the editor are blank
-        if (TextUtils.isEmpty(nameString) && TextUtils.isEmpty(breedString) &&
-                TextUtils.isEmpty(weightString) && TextUtils.isEmpty(weightString)) {
-            // Since no fields were modified, we can return early without creating a new pet.
-            // No need to create ContentValues and no need to do any ContentProvider operations.
-            return;
+        // KEPT THE VALIDATION IN HERE. I COULDN'T MAKE CHANGES TO nameErr, SINCE nameErr BELONGS TO THIS CLASS AND CANNOT BE CONTROLLED IN THE PET PROVIDER CLASS
+
+        // Checks if the NAME field in the editor is blank
+        if (TextUtils.isEmpty(nameString)) {
+            TextView nameErr = (TextView) findViewById(R.id.name_error_message);
+            nameErr.setVisibility(View.VISIBLE);
+        }
+
+        // Checks if the BREED field in the editor is blank
+        if (TextUtils.isEmpty(breedString)) {
+            TextView breedErr = (TextView) findViewById(R.id.breed_error_message);
+            breedErr.setVisibility(View.VISIBLE);
+        }
+
+        // Checks if the WEIGHT field in the editor is blank
+        if (TextUtils.isEmpty(weightString)) {
+            TextView weightErr = (TextView) findViewById(R.id.weight_error_message);
+            weightErr.setVisibility(View.VISIBLE);
+        }
+
+        //IF ANY OF THE REQUIRED FIELDS ARE EMPTY, THIS WILL ENSURE THE ABOVE ERROR MSGS ARE SHOWN AND MAKE SURE WE REMAIN IN THE EDITOR ACTIVITY
+        if (TextUtils.isEmpty(nameString) || TextUtils.isEmpty(breedString) || TextUtils.isEmpty(weightString)) {
+            return; //THIS WON'T ALLOW THE FOLLOWING LINES OF CODES TO EXECUTE, WHICH MEANS WE WILL REMAIN ON THE PAGE, SINCE finish() WON'T BE CALLED
         }
 
         // Data should be checked (above code) before adding them into "values"
@@ -260,6 +279,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 // Otherwise, the insertion was successful and we can display a toast.
                 Toast.makeText(this, getString(R.string.editor_insert_pet_successful),
                         Toast.LENGTH_SHORT).show();
+                finish(); //TO CLOSE EDITOR_ACTIVITY (AFTER HITTING SAVE) AND RETURN TO CATALOG_ACTIVITY
             }
         }
 //        IF IM IN THE "EDIT PET" MODE OF EDITOR_ACTIVITY
@@ -274,6 +294,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 // Otherwise, the update was successful and we can display a toast.
                 Toast.makeText(this, getString(R.string.editor_update_pet_successful),
                         Toast.LENGTH_SHORT).show();
+                finish(); //TO CLOSE EDITOR_ACTIVITY (AFTER HITTING SAVE) AND RETURN TO CATALOG_ACTIVITY
             }
         }
     }

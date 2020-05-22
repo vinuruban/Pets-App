@@ -1,14 +1,20 @@
 package com.example.android.pets.data;
 
+import android.app.Activity;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.android.pets.R;
 import com.example.android.pets.data.PetContract.PetEntry;
 
 import java.net.URI;
@@ -52,6 +58,7 @@ public class PetProvider extends ContentProvider {
         sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY, PetContract.PATH_PETS + "/#", PET_ID); //MAPS ROW OF TABLE
 
     }
+
 
 
     @Override
@@ -129,23 +136,25 @@ public class PetProvider extends ContentProvider {
      */
     private Uri insertPet(Uri uri, ContentValues values) {
 
-        // Data Validation - Check that the name is not null
-        String name = values.getAsString(PetEntry.COLUMN_NAME);
-        if (name.equals("")) {
-            throw new IllegalArgumentException("Pet requires a name");
-        }
+        // LEFT THE CODE BELOW IN CASE VALIDATION NEEDED IN THE CONTENT PROVIDER IN THE FUTURE. CURRENTLY, VALIDATION IS IN THE insertOrUpdatePet() OF EDITOR ACTIVITY.
 
-        // Data Validation - Check that the breed is not null
-        String breed = values.getAsString(PetEntry.COLUMN_BREED);
-        if (breed.equals("")) {
-            throw new IllegalArgumentException("Pet requires a breed");
-        }
-
-        // Data Validation - Check that the weight is not null
-        Integer weight = values.getAsInteger(PetEntry.COLUMN_WEIGHT);
-        if (weight == null) {
-            throw new IllegalArgumentException("Pet requires valid weight");
-        }
+//        // Data Validation - Check that the name is not null
+//        String name = values.getAsString(PetEntry.COLUMN_NAME);
+//        if (name.equals("")) {
+//            throw new IllegalArgumentException("Pet requires a name");
+//        }
+//
+//        // Data Validation - Check that the breed is not null
+//        String breed = values.getAsString(PetEntry.COLUMN_BREED);
+//        if (breed.equals("")) {
+//            throw new IllegalArgumentException("Pet requires a breed");
+//        }
+//
+//        // Data Validation - Check that the weight is not null
+//        Integer weight = values.getAsInteger(PetEntry.COLUMN_WEIGHT);
+//        if (weight == null) {
+//            throw new IllegalArgumentException("Pet requires valid weight");
+//        }
 
         // Get writeable database
         SQLiteDatabase database = dbHelper.getWritableDatabase();
@@ -193,38 +202,40 @@ public class PetProvider extends ContentProvider {
      */
     private int updatePet(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 
-        // If the {@link PetEntry#COLUMN_PET_NAME} key is present,
-        // check that the name value is not null.
-        if (values.containsKey(PetEntry.COLUMN_NAME)) { //CHECKS IF ATTRIBUTE IS PRESENT OR NOT
-            String name = values.getAsString(PetEntry.COLUMN_NAME);
-            if (name.equals("")) {
-                throw new IllegalArgumentException("Pet requires a name");
-            }
-        }
+        // LEFT THE CODE BELOW IN CASE VALIDATION NEEDED IN THE CONTENT PROVIDER IN THE FUTURE. CURRENTLY, VALIDATION IS IN THE insertOrUpdatePet() OF EDITOR ACTIVITY.
 
-        // If the {@link PetEntry#COLUMN_PET_GENDER} key is present,
-        // check that the weight value is not null.
-        if (values.containsKey(PetEntry.COLUMN_BREED)) {
-            String breed = values.getAsString(PetEntry.COLUMN_BREED);
-            if (breed.equals("")) {
-                throw new IllegalArgumentException("Pet requires a breed");
-            }
-        }
-        Log.i("PetProvider", "insertOrUpdatePet: " );
-
-        // If the {@link PetEntry#COLUMN_PET_WEIGHT} key is present,
-        // check that the weight value is valid.
-        if (values.containsKey(PetEntry.COLUMN_WEIGHT)) {
-            Integer weight = values.getAsInteger(PetEntry.COLUMN_WEIGHT);
-            if (weight == null) {
-                throw new IllegalArgumentException("Pet requires valid weight");
-            }
-        }
-
-        // If there are no values to update, then don't try to update the database
-        if (values.size() == 0) {
-            return 0;
-        }
+//        // If the {@link PetEntry#COLUMN_PET_NAME} key is present,
+//        // check that the name value is not null.
+//        if (values.containsKey(PetEntry.COLUMN_NAME)) { //CHECKS IF ATTRIBUTE IS PRESENT OR NOT
+//            String name = values.getAsString(PetEntry.COLUMN_NAME);
+//            if (name.equals("")) {
+//                throw new IllegalArgumentException("Pet requires a name");
+//            }
+//        }
+//
+//        // If the {@link PetEntry#COLUMN_PET_GENDER} key is present,
+//        // check that the weight value is not null.
+//        if (values.containsKey(PetEntry.COLUMN_BREED)) {
+//            String breed = values.getAsString(PetEntry.COLUMN_BREED);
+//            if (breed.equals("")) {
+//                throw new IllegalArgumentException("Pet requires a breed");
+//            }
+//        }
+//        Log.i("PetProvider", "insertOrUpdatePet: " );
+//
+//        // If the {@link PetEntry#COLUMN_PET_WEIGHT} key is present,
+//        // check that the weight value is valid.
+//        if (values.containsKey(PetEntry.COLUMN_WEIGHT)) {
+//            Integer weight = values.getAsInteger(PetEntry.COLUMN_WEIGHT);
+//            if (weight == null) {
+//                throw new IllegalArgumentException("Pet requires valid weight");
+//            }
+//        }
+//
+//        // If there are no values to update, then don't try to update the database
+//        if (values.size() == 0) {
+//            return 0;
+//        }
 
         // Otherwise, get writeable database to update the data
         SQLiteDatabase database = dbHelper.getWritableDatabase();
